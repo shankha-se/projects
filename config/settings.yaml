@@ -1,0 +1,27 @@
+server:
+  host: "127.0.0.1"
+  port: 8000
+
+ml_settings:
+  yolo_model_path: "models/yolov8n.pt"
+  face_distance_tolerance: 0.60  # Lower values mean stricter facial verification matching
+  yolo_confidence: 0.40
+
+# Map matching user interface identifiers directly to local target video assets
+video_assets:
+  mainGarageDoor: "video_feeds/mainGarageDoor.mp4"
+  foyerEntryDoor: "video_feeds/foyerEntryDoor.mp4"
+  powderRoomWindow: "video_feeds/powderRoomWindow.mp4"
+  diningPatioDoor: "video_feeds/diningPatioDoor.mp4"
+  diningRearWindow: "video_feeds/diningRearWindow.mp4"
+  kitchenWindow: "video_feeds/kitchenWindow.mp4"
+  greatRoomWindowUpper: "video_feeds/greatRoomWindowUpper.mp4"
+  greatRoomWindowLower: "video_feeds/greatRoomWindowLower.mp4"
+  studyBottomWindow: "video_feeds/studyBottomWindow.mp4"
+
+# Optional per-sensor label overrides when ML fails to identify small/occluded animals.
+# Keys must match the sensor keys used in the `video_assets` map above.
+sensor_overrides:
+  greatRoomWindowUpper: "Dog (Animal Detected)"
+  studyBottomWindow: "Rabbit (Animal Detected)"
+  mainGarageDoor: "Cat (Animal Detected)"

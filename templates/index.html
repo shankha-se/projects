@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Home Security - Indoor Security Matrix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .scanlines {
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.25) 50%
+            ), linear-gradient(
+                90deg,
+                rgba(255, 0, 0, 0.03),
+                rgba(0, 255, 0, 0.01),
+                rgba(0, 255, 0, 0.03)
+            );
+            background-size: 100% 4px, 6px 100%;
+        }
+        /* Linear transition for perfect straight line point-to-point velocity mapping */
+        #drone-asset {
+            transition: left 1.2s linear, top 1.2s linear;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans h-screen flex flex-col overflow-hidden">
+
+    <header class="bg-slate-900 border-b border-slate-800 p-4 flex justify-between items-center shadow-md z-50">
+        <div class="flex items-center space-x-3">
+            <div class="w-2.5 h-2.5 bg-cyan-500 rounded-full animate-pulse"></div>
+            <h1 class="text-md font-mono font-bold tracking-wider text-slate-200">MY HOME SECURITY</h1>
+        </div>
+        <div class="flex space-x-4 text-xs font-mono">
+            <button onclick="resetDroneToDock()" class="bg-red-950 hover:bg-red-900 text-red-200 px-4 py-1.5 rounded border border-red-700 transition font-bold uppercase tracking-wider">
+                Reset Drone to Dock
+            </button>
+            <div class="bg-slate-950 px-3 py-1.5 rounded border border-slate-800 flex items-center">
+                STATUS: <span id="uav-status" class="text-green-400 font-bold ml-1.5">READY (DOCKED)</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 flex p-4 space-x-4 overflow-hidden">
+        
+        <section class="w-3/5 bg-slate-900 rounded-xl border border-slate-800 p-4 flex flex-col shadow-2xl relative">
+            <div class="mb-2 bg-slate-950 p-2 rounded border border-slate-800 flex justify-between items-center">
+                <span class="text-xs font-mono font-bold text-slate-400 tracking-wider">FLOOR PLAN SCHEMATIC MATRIX</span>
+                <span class="text-[10px] font-mono text-amber-500 bg-amber-950/40 px-2 py-0.5 rounded border border-amber-800/50">STRAIGHT VECTOR FLIGHT MODE ACTIVE</span>
+            </div>
+
+            <div id="map-viewport" class="flex-1 bg-slate-950 rounded-lg border border-slate-800 relative overflow-hidden flex items-center justify-center">
+                
+                <svg class="w-full h-full text-slate-700 p-4 max-h-[650px]" viewBox="0 0 800 700" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <rect x="40" y="40" width="720" height="620" rx="4" stroke-dasharray="2 2" class="text-slate-800" stroke-width="1.5" />
+                    
+                    <rect x="100" y="240" width="260" height="300" stroke-width="3" />
+                    <rect x="100" y="180" width="90" height="60" stroke-width="3" />
+                    <rect x="190" y="180" width="120" height="60" stroke-width="3" />
+                    <line x1="360" y1="240" x2="420" y2="240" stroke-width="3" />
+                    <line x1="420" y1="240" x2="420" y2="440" stroke-width="3" />
+                    <line x1="360" y1="240" x2="360" y2="440" stroke-width="3" />
+                    <line x1="420" y1="480" x2="420" y2="580" stroke-width="3" />
+                    <line x1="420" y1="480" x2="680" y2="480" stroke-width="3" />
+                    <rect x="480" y="480" width="200" height="100" stroke-width="3" />
+                    <line x1="310" y1="100" x2="680" y2="100" stroke-width="3" />
+                    <line x1="680" y1="100" x2="680" y2="480" stroke-width="3" />
+                    
+                    <text x="180" y="400" fill="currentColor" class="font-mono text-sm font-bold opacity-30 tracking-wider">2-BAY GARAGE</text>
+                    <text x="400" y="160" fill="currentColor" class="font-mono text-xs opacity-25">DINING ROOM</text>
+                    <text x="580" y="135" fill="currentColor" class="font-mono text-xs opacity-25">KITCHEN</text>
+                    <text x="520" y="340" fill="currentColor" class="font-mono text-sm font-bold opacity-30 tracking-wider">GREAT ROOM</text>
+                    <text x="550" y="540" fill="currentColor" class="font-mono text-xs opacity-25">STUDY</text>
+                    <text x="130" y="215" fill="currentColor" class="font-mono text-[10px] opacity-25">P.R.</text>
+                    <text x="210" y="215" fill="currentColor" class="font-mono text-[10px] opacity-25">MUD ROOM</text>
+                    <text x="435" y="525" fill="currentColor" class="font-mono text-[10px] opacity-25">FOYER</text>
+                    <text x="43" y="150" fill="currentColor" class="font-mono text-[9px] opacity-25">Opt. Covered Patio</text>
+                    
+                    <rect x="540" y="170" width="90" height="45" stroke-dasharray="4 4" class="text-slate-600" />
+                    <text x="570" y="195" fill="currentColor" class="font-mono text-[10px] opacity-20">Island</text>
+
+                    <g stroke="currentColor" stroke-width="1" class="opacity-30">
+                        <line x1="365" y1="260" x2="415" y2="260" />
+                        <line x1="365" y1="280" x2="415" y2="280" />
+                        <line x1="365" y1="300" x2="415" y2="300" />
+                        <line x1="365" y1="320" x2="415" y2="320" />
+                        <line x1="365" y1="340" x2="415" y2="340" />
+                        <line x1="365" y1="360" x2="415" y2="360" />
+                        <line x1="365" y1="380" x2="415" y2="380" />
+                        <line x1="365" y1="400" x2="415" y2="400" />
+                        <line x1="365" y1="420" x2="415" y2="420" />
+                    </g>
+                    <text x="385" y="255" fill="currentColor" class="font-mono text-[8px] opacity-30">Dn</text>
+                </svg>
+
+                <button onclick="navigateDroneDirect('mainGarageDoor')" class="absolute group flex flex-col items-center z-30" style="left: 23%; top: 76%;">
+                    <span class="absolute h-3 w-3 rounded-full bg-cyan-500 opacity-75 animate-ping"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-cyan-600 border border-white shadow"></span>
+                    <span class="mt-1 bg-slate-950 border border-cyan-500 text-[8px] text-cyan-400 px-1 rounded font-mono font-bold whitespace-nowrap">DR-GARAGE</span>
+                </button>
+
+                <button onclick="navigateDroneDirect('foyerEntryDoor')" class="absolute group flex flex-col items-center z-30" style="left: 51%; top: 76%;">
+                    <span class="absolute h-3 w-3 rounded-full bg-cyan-500 opacity-75 animate-ping"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-cyan-600 border border-white shadow"></span>
+                    <span class="mt-1 bg-slate-950 border border-cyan-500 text-[8px] text-cyan-400 px-1 rounded font-mono font-bold whitespace-nowrap">DR-FOYER</span>
+                </button>
+
+                <button onclick="navigateDroneDirect('powderRoomWindow')" class="absolute group flex flex-col items-center z-30" style="left: 9%; top: 29%;">
+                    <span class="absolute h-3 w-3 rounded-full bg-purple-500 opacity-75 animate-ping"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-purple-600 border border-white shadow"></span>
+                    <span class="mt-1 bg-slate-950 border border-purple-500 text-[8px] text-purple-400 px-1 rounded font-mono font-bold whitespace-nowrap">WIN-P_ROOM</span>
+                </button>
+
+                <button onclick="navigateDroneDirect('diningPatioDoor')" class="absolute group flex flex-col items-center z-30" style="left: 36%; top: 18%;">
+                    <span class="absolute h-3 w-3 rounded-full bg-cyan-500 opacity-75 animate-ping"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-cyan-600 border border-white shadow"></span>
+                    <span class="mt-1 bg-slate-950 border border-cyan-500 text-[8px] text-cyan-400 px-1 rounded font-mono font-bold whitespace-nowrap">DR-PATIO</span>
+                </button>
+
+                <button onclick="navigateDroneDirect('diningRearWindow')" class="absolute group flex flex-col items-center z-30" style="left: 51%; top: 11%;">
+                    <span class="absolute h-3 w-3 rounded-full bg-purple-500 opacity-75 animate-ping"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-purple-600 border border-white shadow"></span>
+                    <span class="mt-1 bg-slate-950 border border-purple-500 text-[8px] text-purple-400 px-1 rounded font-mono font-bold whitespace-nowrap">WIN-DINING</span>
+                </button>
+
+                <button onclick="navigateDroneDirect('kitchenWindow')" class="absolute group flex flex-col items-center z-30" style="left: 76%; top: 11%;">
+                    <span class="absolute h-3 w-3 rounded-full bg-purple-500 opacity-75 animate-ping"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-purple-600 border border-white shadow"></span>
+                    <span class="mt-1 bg-slate-950 border border-purple-500 text-[8px] text-purple-400 px-1 rounded font-mono font-bold whitespace-nowrap">WIN-KITCHEN</span>
+                </button>
+
+                <button onclick="navigateDroneDirect('greatRoomWindowUpper')" class="absolute group flex flex-col items-center z-30" style="left: 84%; top: 48%;">
+                    <span class="absolute h-3 w-3 rounded-full bg-purple-500 opacity-75 animate-ping"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-purple-600 border border-white shadow"></span>
+                    <span class="mt-1 bg-slate-950 border border-purple-500 text-[8px] text-purple-400 px-1 rounded font-mono font-bold whitespace-nowrap">WIN-GREAT_1</span>
+                </button>
+
+                <button onclick="navigateDroneDirect('greatRoomWindowLower')" class="absolute group flex flex-col items-center z-30" style="left: 84%; top: 62%;">
+                    <span class="absolute h-3 w-3 rounded-full bg-purple-500 opacity-75 animate-ping"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-purple-600 border border-white shadow"></span>
+                    <span class="mt-1 bg-slate-950 border border-purple-500 text-[8px] text-purple-400 px-1 rounded font-mono font-bold whitespace-nowrap">WIN-GREAT_2</span>
+                </button>
+
+                <button onclick="navigateDroneDirect('studyBottomWindow')" class="absolute group flex flex-col items-center z-30" style="left: 71%; top: 82%;">
+                    <span class="absolute h-3 w-3 rounded-full bg-purple-500 opacity-75 animate-ping"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-purple-600 border border-white shadow"></span>
+                    <span class="mt-1 bg-slate-950 border border-purple-500 text-[8px] text-purple-400 px-1 rounded font-mono font-bold whitespace-nowrap">WIN-STUDY</span>
+                </button>
+
+                <div id="drone-asset" class="absolute text-emerald-400 z-40 transform -translate-x-1/2 -translate-y-1/2" style="left: 49%; top: 57%;">
+                    <div class="relative flex flex-col items-center">
+                        <svg class="w-8 h-8 drop-shadow-[0_0_10px_rgba(52,211,153,0.9)]" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M21 16v-2c1.1 0 2-.9 2-2s-.9-2-2-2v-2c0-1.66-1.34-3-3-3h-2c0-1.1-.9-2-2-2s-2 .9-2 2h-2c-1.66 0-3 1.34-3 3v2c-1.1 0-2 .9-2 2s.9 2 2 2v2c0 1.66 1.34 3 3 3h2c0 1.1.9 2 2 2s2-.9 2-2h2c1.66 0 3-1.34 3-3zm-9 2c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm1-8h-2V6h2v4z"/>
+                        </svg>
+                        <div class="text-[7px] font-mono bg-slate-950 border border-emerald-500 px-1 rounded font-bold mt-0.5 text-center shadow-md whitespace-nowrap uppercase tracking-tighter">UAV-01</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="w-2/5 flex flex-col space-y-4">
+            
+            <div class="flex-1 bg-black rounded-xl border border-slate-800 shadow-2xl relative flex flex-col overflow-hidden">
+                <div class="absolute top-3 left-3 z-50 bg-slate-900/90 px-2.5 py-1 rounded font-mono text-[11px] text-slate-400 flex items-center space-x-2 border border-slate-800">
+                    <div id="feed-beacon" class="w-2 h-2 bg-slate-600 rounded-full"></div>
+                    <span id="feed-label">CAM STATUS: STANDBY</span>
+                </div>
+
+                <div class="w-full h-full flex items-center justify-center relative bg-slate-950">
+                    <div id="video-overlay" class="absolute inset-0 scanlines opacity-25 hidden pointer-events-none z-20"></div>
+
+                    <div id="video-feed-display" class="hidden absolute inset-0 bg-slate-900 flex flex-col items-center justify-center border border-cyan-500/20 overflow-hidden">
+                        <img id="video-frame" class="absolute inset-0 w-full h-full object-cover opacity-95" alt="Live UAV feed">
+                        <div class="absolute top-10 text-center animate-pulse flex items-center space-x-2">
+                            <span class="w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
+                            <span class="text-red-500 font-mono text-[10px] font-bold tracking-widest">LIVE UAV RECON FEED</span>
+                        </div>
+                        <svg class="w-12 h-12 text-cyan-500/30 animate-pulse" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"></path>
+                        </svg>
+                        <span id="video-feed-meta" class="mt-4 font-mono text-[9px] text-slate-400 max-w-xs text-center px-4 leading-relaxed"></span>
+                    </div>
+
+                    <div id="video-placeholder" class="text-center p-6 text-slate-500 max-w-sm z-10">
+                        <p class="font-mono text-[11px] tracking-wide uppercase text-slate-400 mb-1.5 font-semibold">Awaiting Interface Trigger Loop</p>
+                        <p class="font-mono text-[10px] leading-relaxed text-slate-600">Click any perimeter target. The unit will fire directly toward the selection ignoring internal boundaries.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ai-panel" class="h-1/3 bg-slate-900 rounded-xl border border-slate-800 p-4 flex items-center justify-center shadow-2xl">
+                <p id="ai-idle-text" class="text-slate-500 font-mono text-xs uppercase tracking-tight">Telemetry panel removed.</p>
+                <div id="ai-result-box" class="hidden w-full p-2 font-mono text-xs" aria-hidden="true">
+                    <div class="flex justify-between items-center mb-1 border-b border-white/10 pb-1">
+                        <span class="font-bold tracking-wide" id="res-level">TELEMETRY DIAGNOSTIC</span>
+                        <span class="text-[9px] bg-black/40 px-1.5 py-0.5 rounded text-slate-400" id="res-time">TIMESTAMP</span>
+                    </div>
+                    <p id="res-desc" class="text-[11px] leading-relaxed opacity-90 text-slate-300"></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        /**
+         * Straight-Line Flight Mapping Architecture
+         * Bypasses step waypoints. The drone asset translates directly to the target node position.
+         */
+        const DRONE_DOCK_COORDINATES = { x: 49, y: 57 }; 
+
+        const SYSTEM_NAV_TOPOLOGY = {
+            foyerEntryDoor: { x: 51, y: 76, label: 'MAIN FOYER ENTRY', msg: 'DIRECT VECTOR INTERCEPT: Position locked at Foyer Entrance via linear point-to-point transit.' },
+            mainGarageDoor: { x: 23, y: 76, label: '2-BAY GARAGE ACCESS', msg: 'DIRECT VECTOR INTERCEPT: Position locked inside Garage Bay via linear point-to-point transit.' },
+            powderRoomWindow: { x: 9, y: 29, label: 'POWDER ROOM WINDOW', msg: 'DIRECT VECTOR INTERCEPT: Position locked at Powder Room window via linear point-to-point transit.' },
+            diningPatioDoor: { x: 36, y: 18, label: 'DINING PATIO SLIDER', msg: 'DIRECT VECTOR INTERCEPT: Position locked at Dining Patio Door via linear point-to-point transit.' },
+            diningRearWindow: { x: 51, y: 11, label: 'DINING NORTH WINDOW', msg: 'DIRECT VECTOR INTERCEPT: Position locked at North Dining Window via linear point-to-point transit.' },
+            kitchenWindow: { x: 76, y: 11, label: 'KITCHEN SINK WINDOW', msg: 'DIRECT VECTOR INTERCEPT: Position locked at Kitchen Sink Window via linear point-to-point transit.' },
+            greatRoomWindowUpper: { x: 84, y: 48, label: 'GREAT ROOM WINDOW 1', msg: 'DIRECT VECTOR INTERCEPT: Position locked at Upper Great Room Window via linear point-to-point transit.' },
+            greatRoomWindowLower: { x: 84, y: 62, label: 'GREAT ROOM WINDOW 2', msg: 'DIRECT VECTOR INTERCEPT: Position locked at Lower Great Room Window via linear point-to-point transit.' },
+            studyBottomWindow: { x: 71, y: 82, label: 'STUDY BOTTOM WINDOW', msg: 'DIRECT VECTOR INTERCEPT: Position locked at South Study Window via linear point-to-point transit.' }
+        };
+
+        let arrivalTrackingTimeout = null;
+        let autoReturnTimer = null;
+        let alarmTimeout = null;
+        let missionReady = false;
+        let telemetrySocket = null;
+        let alarmAudioContext = null;
+        let alarmOscillator = null;
+
+        function playAlarmTone() {
+            if (alarmOscillator) return;
+            if (alarmTimeout) {
+                clearTimeout(alarmTimeout);
+                alarmTimeout = null;
+            }
+
+            alarmAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+            alarmOscillator = alarmAudioContext.createOscillator();
+            const gainNode = alarmAudioContext.createGain();
+            alarmOscillator.type = 'square';
+            alarmOscillator.frequency.value = 440;
+            gainNode.gain.value = 0.15;
+            alarmOscillator.connect(gainNode);
+            gainNode.connect(alarmAudioContext.destination);
+            alarmOscillator.start();
+
+            alarmTimeout = setTimeout(() => {
+                stopAlarmTone();
+                alarmTimeout = null;
+            }, 3000);
+        }
+
+        function stopAlarmTone() {
+            if (alarmTimeout) {
+                clearTimeout(alarmTimeout);
+                alarmTimeout = null;
+            }
+            if (alarmOscillator) {
+                alarmOscillator.stop();
+                alarmOscillator.disconnect();
+                alarmOscillator = null;
+            }
+            if (alarmAudioContext) {
+                alarmAudioContext.close();
+                alarmAudioContext = null;
+            }
+        }
+
+        function scheduleAutoReturn() {
+            if (autoReturnTimer) return;
+            autoReturnTimer = setTimeout(() => {
+                document.getElementById('uav-status').textContent = 'RETURNING UNDER STAIR';
+                document.getElementById('uav-status').className = 'text-slate-300 font-bold';
+                resetDroneToDock();
+                autoReturnTimer = null;
+            }, 10000);
+        }
+
+        function cancelAutoReturn() {
+            if (!autoReturnTimer) return;
+            clearTimeout(autoReturnTimer);
+            autoReturnTimer = null;
+        }
+
+        function navigateDroneDirect(targetAssetKey) {
+            const target = SYSTEM_NAV_TOPOLOGY[targetAssetKey];
+            if (!target) return;
+
+            if (arrivalTrackingTimeout) clearTimeout(arrivalTrackingTimeout);
+
+            // Interface state modification prior to launch
+            document.getElementById('ai-idle-text').classList.add('hidden');
+            document.getElementById('video-placeholder').classList.add('hidden');
+            document.getElementById('ai-result-box').classList.add('hidden');
+            
+            document.getElementById('uav-status').textContent = "STRAIGHT LINE INTERCEPT RUNNING...";
+            document.getElementById('uav-status').className = "text-amber-500 font-bold animate-pulse";
+
+            const droneUIElement = document.getElementById('drone-asset');
+            
+            // Instantly transition position values via a single direct line run
+            droneUIElement.style.left = `${target.x}%`;
+            droneUIElement.style.top = `${target.y}%`;
+
+            // Wait exactly 1200ms (matching the CSS transition timing configuration) to display feed metrics
+            arrivalTrackingTimeout = setTimeout(() => {
+                completeFlightReporting(targetAssetKey, target);
+                sendTelemetryCommand({ action: 'track', sensor: targetAssetKey });
+            }, 1200);
+        }
+
+        function completeFlightReporting(assetKey, metadata) {
+            missionReady = true;
+            document.getElementById('video-feed-display').classList.remove('hidden');
+            document.getElementById('video-overlay').classList.remove('hidden');
+            document.getElementById('video-feed-meta').textContent = `STREAM RESOLUTION: 4K FIXED LINE // LINK ID: ${assetKey.toUpperCase()}`;
+            
+            const feedbackPanelBox = document.getElementById('ai-result-box');
+            const classificationHeader = document.getElementById('res-level');
+            const calculationTimestamp = document.getElementById('res-time');
+            const narrativeField = document.getElementById('res-desc');
+
+            feedbackPanelBox.classList.remove('hidden');
+            calculationTimestamp.textContent = `${new Date().toLocaleTimeString()} // FIXED_VECTOR`;
+            narrativeField.textContent = metadata.msg;
+
+            if (assetKey.toLowerCase().includes('door')) {
+                feedbackPanelBox.className = "w-full p-2.5 rounded border bg-red-950/80 border-red-600 text-red-200 shadow-xl";
+                classificationHeader.textContent = "⚠️ LINEAR DEPLOYMENT: ACCESSPORT TARGET";
+                document.getElementById('feed-beacon').className = "w-2 h-2 bg-red-500 rounded-full animate-ping";
+                document.getElementById('feed-label').textContent = `LIVE INTERCEPT FEED: ${assetKey.toUpperCase()}`;
+                document.getElementById('uav-status').textContent = "STATIONED AT VECTOR EDGE TERMINUS";
+                document.getElementById('uav-status').className = "text-red-400 font-bold";
+            } else {
+                feedbackPanelBox.className = "w-full p-2.5 rounded border bg-cyan-950/80 border-cyan-600 text-cyan-200 shadow-xl";
+                classificationHeader.textContent = "✓ LINEAR DEPLOYMENT: APERTURE TARGET";
+                document.getElementById('feed-beacon').className = "w-2 h-2 bg-cyan-500 rounded-full";
+                document.getElementById('feed-label').textContent = `LIVE STEADY DATASTREAM: ${assetKey.toUpperCase()}`;
+                document.getElementById('uav-status').textContent = "TARGET VECTOR SATISFIED";
+                document.getElementById('uav-status').className = "text-cyan-400 font-bold";
+            }
+        }
+
+        function resetDroneToDock() {
+            if (arrivalTrackingTimeout) clearTimeout(arrivalTrackingTimeout);
+            cancelAutoReturn();
+            stopAlarmTone();
+            missionReady = false;
+
+            const droneUIElement = document.getElementById('drone-asset');
+            if (droneUIElement) {
+                droneUIElement.style.left = `${DRONE_DOCK_COORDINATES.x}%`;
+                droneUIElement.style.top = `${DRONE_DOCK_COORDINATES.y}%`;
+            }
+
+            document.getElementById('uav-status').textContent = "READY (DOCKED)";
+            document.getElementById('uav-status').className = "text-green-400 font-bold";
+            document.getElementById('feed-beacon').className = "w-2 h-2 bg-slate-600 rounded-full";
+            document.getElementById('feed-label').textContent = "CAM STATUS: STANDBY";
+
+            document.getElementById('video-feed-display').classList.add('hidden');
+            document.getElementById('video-overlay').classList.add('hidden');
+            document.getElementById('ai-result-box').classList.add('hidden');
+            document.getElementById('video-placeholder').classList.remove('hidden');
+            
+            const idleTextElement = document.getElementById('ai-idle-text');
+            idleTextElement.classList.remove('hidden');
+            idleTextElement.textContent = "Drone currently stationary inside storage dock.";
+            sendTelemetryCommand({ action: 'reset' });
+        }
+
+        function getWebSocketEndpoint() {
+            const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+            return `${protocol}//${window.location.host}/ws/telemetry`;
+        }
+
+        function sendTelemetryCommand(payload) {
+            if (!telemetrySocket || telemetrySocket.readyState !== WebSocket.OPEN) {
+                return;
+            }
+            telemetrySocket.send(JSON.stringify(payload));
+        }
+
+        function handleTelemetryMessage(event) {
+            let data;
+            try {
+                data = JSON.parse(event.data);
+            } catch (error) {
+                return;
+            }
+
+            const frameElement = document.getElementById('video-frame');
+            if (data.frame_data && frameElement) {
+                frameElement.src = data.frame_data;
+            }
+
+                        if (data.detected_label) {
+                const labelEl = document.getElementById('feed-label');
+                if (data.detected_label.startsWith('Authorized:')) {
+                    labelEl.textContent = 'AUTHORIZED PRESENCE — NO REPORTING NEEDED';
+                    labelEl.className = 'font-mono text-[10px] font-bold tracking-widest text-emerald-400';
+                } else {
+                    labelEl.textContent = `LIVE INTERCEPT FEED: ${data.detected_label}`;
+                    labelEl.className = 'font-mono text-[10px] font-bold tracking-widest';
+                }
+            }
+
+            const metaEl = document.getElementById('video-feed-meta');
+            if (metaEl) {
+                if (data.detected_label && data.detected_label.startsWith('Authorized:')) {
+                    metaEl.textContent = `AUTHORIZED PRESENCE // ${data.detected_label}`;
+                } else {
+                    metaEl.textContent = `STREAM STATUS: ${data.alarm_state || 'NOMINAL'} // ${data.detected_label || 'Clear'}`;
+                }
+            }
+
+            const beacon = document.getElementById('feed-beacon');
+            if (beacon) {
+                beacon.className = data.safety_status === 'UNSAFE'
+                    ? 'w-2 h-2 bg-red-500 rounded-full animate-ping'
+                    : 'w-2 h-2 bg-emerald-500 rounded-full animate-pulse';
+            }
+
+            if (missionReady && data.detected_label && data.detected_label.startsWith('Authorized:')) {
+                document.getElementById('uav-status').textContent = 'AUTHORIZED — HOLDING 10s THEN RETURNING UNDER STAIR';
+                document.getElementById('uav-status').className = 'text-emerald-400 font-bold';
+                cancelAutoReturn();
+                stopAlarmTone();
+                scheduleAutoReturn();
+            } else if (data.video_completed && data.alarm_needed) {
+                document.getElementById('uav-status').textContent = 'VIDEO COMPLETE — CRITICAL ALERT BUZZER';
+                document.getElementById('uav-status').className = 'text-red-400 font-bold animate-pulse';
+                playAlarmTone();
+            } else if (data.video_completed && (!data.alarm_needed || data.safety_status === 'SAFE' || data.asset_status === 'missing')) {
+                // Safe end-of-video: immediately return drone to dock
+                document.getElementById('uav-status').textContent = 'VIDEO COMPLETE — NO THREAT, RETURNING TO DOCK';
+                document.getElementById('uav-status').className = 'text-slate-300 font-bold';
+                stopAlarmTone();
+                cancelAutoReturn();
+                // small timeout to allow UI update before moving drone
+                setTimeout(() => resetDroneToDock(), 500);
+            } else {
+                cancelAutoReturn();
+                stopAlarmTone();
+            }
+
+            if (data.asset_status === 'missing') {
+                const placeholder = document.getElementById('video-placeholder');
+                placeholder.classList.remove('hidden');
+                placeholder.innerHTML = `
+                    <p class="font-mono text-[11px] tracking-wide uppercase text-slate-400 mb-1.5 font-semibold">Video asset not available.</p>
+                    <p class="font-mono text-[10px] leading-relaxed text-slate-600">The server could not load the requested sensor stream.</p>
+                `;
+            }
+        }
+
+        function initTelemetrySocket() {
+            telemetrySocket = new WebSocket(getWebSocketEndpoint());
+            telemetrySocket.addEventListener('open', () => {
+                console.log('Telemetry socket connected.');
+            });
+            telemetrySocket.addEventListener('message', handleTelemetryMessage);
+            telemetrySocket.addEventListener('close', () => {
+                console.warn('Telemetry socket closed.');
+            });
+            telemetrySocket.addEventListener('error', (event) => {
+                console.error('Telemetry socket error:', event);
+            });
+        }
+
+        initTelemetrySocket();
+    </script>
+</body>
+</html>
