@@ -326,21 +326,13 @@
             calculationTimestamp.textContent = `${new Date().toLocaleTimeString()} // FIXED_VECTOR`;
             narrativeField.textContent = metadata.msg;
 
-            if (assetKey.toLowerCase().includes('door')) {
-                feedbackPanelBox.className = "w-full p-2.5 rounded border bg-red-950/80 border-red-600 text-red-200 shadow-xl";
-                classificationHeader.textContent = "⚠️ LINEAR DEPLOYMENT: ACCESSPORT TARGET";
-                document.getElementById('feed-beacon').className = "w-2 h-2 bg-red-500 rounded-full animate-ping";
-                document.getElementById('feed-label').textContent = `LIVE INTERCEPT FEED: ${assetKey.toUpperCase()}`;
-                document.getElementById('uav-status').textContent = "STATIONED AT VECTOR EDGE TERMINUS";
-                document.getElementById('uav-status').className = "text-red-400 font-bold";
-            } else {
-                feedbackPanelBox.className = "w-full p-2.5 rounded border bg-cyan-950/80 border-cyan-600 text-cyan-200 shadow-xl";
-                classificationHeader.textContent = "✓ LINEAR DEPLOYMENT: APERTURE TARGET";
-                document.getElementById('feed-beacon').className = "w-2 h-2 bg-cyan-500 rounded-full";
-                document.getElementById('feed-label').textContent = `LIVE STEADY DATASTREAM: ${assetKey.toUpperCase()}`;
-                document.getElementById('uav-status').textContent = "TARGET VECTOR SATISFIED";
-                document.getElementById('uav-status').className = "text-cyan-400 font-bold";
-            }
+            feedbackPanelBox.className = "w-full p-2.5 rounded border bg-red-950/80 border-cyan-600 text-yellow-200 shadow-xl";
+            classificationHeader.textContent = "SEC DRONE 1; DEPLOYMENT: TERMINUS TARGET";
+            document.getElementById('feed-beacon').className = "w-2 h-2 bg-red-500 rounded-full animate-ping";
+            document.getElementById('feed-label').textContent = `LIVE INTERCEPT FEED: ${assetKey.toUpperCase()}`;
+            document.getElementById('uav-status').textContent = "STATIONED AT LOCATION TERMINUS";
+            document.getElementById('uav-status').className = "text-blue-400 font-bold";
+           
         }
 
         function resetDroneToDock() {
